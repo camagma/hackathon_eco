@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UpcycleAI Studio — Give Old Items a New Life | Qwen-Image-Edit</title>
+  <meta name="description" content="AI-powered upcycling: upload a photo of an old item, describe the result you want, and get a redesigned image plus a step-by-step DIY plan." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Верхний хедер -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M7 19H4.815a1.83 1.83 0 0 1-1.57-.881 1.785 1.785 0 0 1-.004-1.784L7.196 9.5"></path>
+            <path d="M11 19h8.185a1.83 1.83 0 0 0 1.57-.881 1.785 1.785 0 0 0 .004-1.784L16.804 9.5"></path>
+            <path d="M14 5l2 3-2 3"></path>
+            <path d="M10 5L8 8l2 3"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>UpcycleAI <span class="badge">A New Life for Old Items</span></h1>
+          <p class="subtitle">AI-powered redesign, upcycling, and DIY instructions with Qwen-Image-Edit</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="api-status-pill" id="apiStatusPill" title="API key status">
+          <span class="status-dot checking"></span>
+          <span class="status-label" id="apiStatusLabel">Checking API...</span>
+        </div>
+        <button id="settingsBtn" class="btn btn-secondary icon-btn" title="API settings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>Settings</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Основной рабочий экран -->
+    <main class="main-workspace">
+      <!-- Левая колонка: Ввод и управление -->
+      <section class="panel control-panel">
+        <!-- Зона загрузки / Исходное фото старой вещи -->
+        <div class="section-title">
+          <span>1. Photo of the Old Item</span>
+          <button id="clearImageBtn" class="link-btn hidden">Clear</button>
+        </div>
+
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fileInput" accept="image/png, image/jpeg, image/webp" class="file-input-hidden" />
+          
+          <div class="drop-placeholder" id="dropPlaceholder">
+            <div class="upload-icon">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+            </div>
+            <p class="drop-text">Drop a photo of an old item here or <span class="highlight">choose a file</span></p>
+            <p class="drop-hint">Furniture, clothing, footwear, decor, or devices (PNG, JPG, WebP)</p>
+            
+            <!-- Быстрые образцы старых вещей -->
+            <div class="sample-images-bar">
+              <span class="sample-label">Try a sample:</span>
+              <div class="sample-chips-row" id="sampleChipsRow">
+                <button class="sample-chip" data-sample="chair" title="Vintage wooden chair">🪑 Chair</button>
+                <button class="sample-chip" data-sample="dresser" title="Old wooden dresser">🗄️ Dresser</button>
+                <button class="sample-chip" data-sample="jacket" title="Worn denim jacket">🧥 Denim Jacket</button>
+                <button class="sample-chip" data-sample="lamp" title="Old metal lamp">💡 Lamp</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-container hidden" id="previewContainer">
+            <img id="sourcePreview" src="" alt="Original old item" />
+            <div class="image-meta" id="sourceMeta"></div>
+          </div>
+        </div>
+
+        <!-- Пожелание пользователя и стили -->
+        <div class="prompt-section">
+          <div class="section-title">
+            <span>2. Describe the Transformation</span>
+            <span class="multilingual-tag">AI Upcycle Agent</span>
+          </div>
+
+          <div class="prompt-input-wrapper">
+            <textarea
+              id="promptInput"
+              rows="3"
+              placeholder="Describe how you want to transform the item—for example: 'Restore the chair in Scandinavian style with light wood' or 'Give the dresser a matte charcoal loft finish with gold handles'"
+            ></textarea>
+            <div class="prompt-actions">
+              <button id="clearPromptBtn" class="icon-btn-ghost" title="Clear">✕</button>
+            </div>
+          </div>
+
+          <!-- Быстрые стилистические теги -->
+          <div class="style-tags-container">
+            <span class="style-tags-label">Popular styles:</span>
+            <div class="style-tags-grid">
+              <button type="button" class="style-tag-chip" data-style="scandi" data-prompt-part="in modern Scandinavian style with light natural wood and clean lines">🌿 Scandi</button>
+              <button type="button" class="style-tag-chip" data-style="loft" data-prompt-part="in industrial loft style with matte graphite and dark metal">🏭 Loft</button>
+              <button type="button" class="style-tag-chip" data-style="kintsugi" data-prompt-part="in Japanese Kintsugi style with gold seams and gold leaf">✨ Kintsugi</button>
+              <button type="button" class="style-tag-chip" data-style="art_custom" data-prompt-part="as a bold custom pop-art piece with designer graphics">🎨 Custom</button>
+              <button type="button" class="style-tag-chip" data-style="matte_minimal" data-prompt-part="in a clean matte-black minimalist style">🖤 Graphite</button>
+              <button type="button" class="style-tag-chip" data-style="vintage_restore" data-prompt-part="with a refined classic restoration of the texture and brass details">🕰️ Retro</button>
+            </div>
+          </div>
+
+          <!-- Готовые хакатон-пресеты -->
+          <div class="presets-container">
+            <div class="presets-header">Ready-made upcycling ideas:</div>
+            <div class="presets-grid" id="presetsGrid">
+              <!-- Заполняется динамически через JS -->
+            </div>
+          </div>
+
+          <!-- Кнопка запуска -->
+          <button id="generateBtn" class="btn btn-primary generate-btn" disabled>
+            <svg class="sparkle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path>
+            </svg>
+            <span id="generateBtnText">Transform & Create a DIY Plan</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Правая колонка: Результат и Before/After сравнение + DIY План -->
+      <section class="panel viewer-panel">
+        <div class="viewer-header">
+          <div class="section-title">
+            <span>3. Transformation Result</span>
+          </div>
+          <div class="viewer-tools">
+            <div class="view-mode-toggle" id="viewModeToggle">
+              <button class="view-btn active" data-mode="split" id="splitModeBtn" title="Before-and-after comparison slider">Before / After</button>
+              <button class="view-btn" data-mode="result" id="resultModeBtn" title="Result only">Result</button>
+              <button class="view-btn" data-mode="source" id="sourceModeBtn" title="Original only">Original</button>
+            </div>
+            <button id="downloadBtn" class="btn btn-secondary" disabled title="Download result">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Download</span>
+            </button>
+            <button id="chainEditBtn" class="btn btn-secondary" disabled title="Use the result as the new source image">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                <path d="M21 3v5h-5"></path>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                <path d="M8 16H3v5"></path>
+              </svg>
+              <span>Next Edit</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="viewer-stage" id="viewerStage">
+          <!-- Пустое состояние -->
+          <div class="empty-stage" id="emptyStage">
+            <div class="empty-icon">🌱</div>
+            <h3>Ready for Your Idea</h3>
+            <p>Upload a photo of an old item—or choose a sample—describe your idea, and click “Transform & Create a DIY Plan.”</p>
+          </div>
+
+          <!-- Индикатор загрузки с таймером -->
+          <div class="loading-overlay hidden" id="loadingOverlay">
+            <div class="spinner-ring">
+              <div></div><div></div><div></div><div></div>
+            </div>
+            <div class="loading-title">AI agents are transforming your item...</div>
+            <div class="loading-model-tag" id="loadingModelTag">Qwen-Image-Edit & Upcycle Agent</div>
+            <div class="loading-timer" id="loadingTimer">0.0 sec</div>
+            <p class="loading-hint">Creating a photorealistic preview and a step-by-step DIY plan with materials</p>
+          </div>
+
+          <!-- Слайдер Before/After -->
+          <div class="compare-container hidden" id="compareContainer">
+            <div class="compare-wrapper" id="compareWrapper">
+              <!-- Изображение ПОСЛЕ -->
+              <img id="afterImage" class="compare-img after-img" src="" alt="After upcycling" />
+              
+              <!-- Изображение ДО с обрезкой слайдера -->
+              <div class="compare-overlay" id="compareOverlay">
+                <img id="beforeImage" class="compare-img before-img" src="" alt="Before upcycling" />
+                <span class="label label-before">BEFORE</span>
+              </div>
+              
+              <span class="label label-after">AFTER</span>
+
+              <!-- Ручка слайдера -->
+              <div class="compare-slider-handle" id="sliderHandle">
+                <div class="slider-line"></div>
+                <div class="slider-button">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Подвал вьювера с метриками -->
+        <div class="viewer-footer hidden" id="viewerFooter">
+          <div class="metric-item">
+            <span class="metric-label">Model:</span>
+            <span class="metric-value font-mono" id="metricModel">-</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Processing time:</span>
+            <span class="metric-value font-mono" id="metricLatency">-</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Size:</span>
+            <span class="metric-value font-mono" id="metricSize">-</span>
+          </div>
+        </div>
+
+        <!-- Интерактивная карточка DIY-Плана & Инструкции мастера -->
+        <div class="diy-card hidden" id="diyCard">
+          <div class="diy-card-header">
+            <div class="diy-title-row">
+              <span class="diy-badge-icon">🛠️</span>
+              <div>
+                <h3 class="diy-card-title" id="diyItemTitle">Upcycling Plan</h3>
+                <p class="diy-card-subtitle" id="diyItemSubtitle">Step-by-step instructions for making it yourself</p>
+              </div>
+            </div>
+            <button class="btn btn-secondary btn-sm" id="copyDiyBtn" title="Copy instructions">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Copy</span>
+            </button>
+          </div>
+
+          <!-- Бейджи метрик переделки -->
+          <div class="diy-meta-grid">
+            <div class="diy-meta-box">
+              <span class="meta-box-label">Difficulty:</span>
+              <span class="meta-box-value" id="diyDifficulty">Intermediate</span>
+            </div>
+            <div class="diy-meta-box">
+              <span class="meta-box-label">Time:</span>
+              <span class="meta-box-value" id="diyTime">3–5 hours</span>
+            </div>
+            <div class="diy-meta-box">
+              <span class="meta-box-label">Budget:</span>
+              <span class="meta-box-value" id="diyCost">~800 ₴</span>
+            </div>
+            <div class="diy-meta-box eco-box">
+              <span class="meta-box-label">Eco impact:</span>
+              <span class="meta-box-value" id="diyEco">Diverted from landfill</span>
+            </div>
+          </div>
+
+          <!-- Секция: Материалы и Инструменты -->
+          <div class="diy-materials-section">
+            <div class="diy-col">
+              <h4>📦 Materials:</h4>
+              <ul class="diy-list" id="diyMaterialsList"></ul>
+            </div>
+            <div class="diy-col">
+              <h4>🔧 Tools:</h4>
+              <ul class="diy-list" id="diyToolsList"></ul>
+            </div>
+          </div>
+
+          <!-- Секция: Пошаговые шаги -->
+          <div class="diy-steps-section">
+            <h4>📋 Step-by-Step Plan:</h4>
+            <div class="diy-steps-container" id="diyStepsContainer"></div>
+          </div>
+
+          <!-- Секрет мастера (Pro-tip) -->
+          <div class="diy-pro-tip" id="diyProTipBox">
+            <div class="pro-tip-icon">💡</div>
+            <div class="pro-tip-text">
+              <strong>Pro Tip:</strong> <span id="diyProTipText"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Модальное окно настроек -->
+    <div class="modal-backdrop hidden" id="settingsModal">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h2>Generation API Settings</h2>
+          <button id="closeSettingsBtn" class="icon-btn-ghost">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="settingApiKey">API Key</label>
+            <div class="input-with-action">
+              <input type="password" id="settingApiKey" placeholder="hf_..., nvapi-..., or a DashScope key" autocomplete="off" />
+              <button id="toggleKeyVisibility" class="btn btn-ghost" type="button">Show</button>
+            </div>
+            <p class="form-hint">
+              On a Mac without an NVIDIA GPU, use a Hugging Face token beginning with hf_. QwenCloud/DashScope requires its own key.
+              Local NVIDIA NIM requires a separate GPU server. Your key is stored only in this browser.
+            </p>
+          </div>
+
+          <div class="form-group">
+            <label for="settingBaseUrl">API Base URL</label>
+            <select id="settingBaseUrlSelect">
+              <option value="https://api-inference.huggingface.co">Hugging Face Inference Providers (works on Mac)</option>
+              <option value="http://localhost:8000/v1">Local NVIDIA NIM qwen/qwen-image-edit (http://localhost:8000/v1)</option>
+              <option value="https://dashscope-intl.aliyuncs.com/api/v1">QwenCloud / DashScope hosted API</option>
+              <option value="custom">Custom URL...</option>
+            </select>
+            <input type="text" id="settingCustomBaseUrl" class="hidden mt-2" placeholder="https://api-inference.huggingface.co or http://my-nim-server:8000/v1" />
+          </div>
+
+          <div class="form-group">
+            <label for="settingModel">Image-editing model</label>
+            <select id="settingModel">
+              <option value="Qwen/Qwen-Image-Edit">Qwen/Qwen-Image-Edit (Hugging Face)</option>
+              <option value="qwen/qwen-image-edit">qwen/qwen-image-edit (NVIDIA/DashScope)</option>
+              <option value="qwen-image-edit">qwen-image-edit (Standard NIM)</option>
+              <option value="qwen/qwen-image-edit-2511">qwen/qwen-image-edit-2511</option>
+            </select>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half">
+              <label for="settingSeed">Seed (optional)</label>
+              <input type="number" id="settingSeed" placeholder="Random" />
+            </div>
+            <div class="form-group half">
+              <label for="settingSteps">Diffusion steps</label>
+              <input type="number" id="settingSteps" placeholder="Default (30–50)" min="10" max="100" />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="cancelSettingsBtn" class="btn btn-secondary">Cancel</button>
+          <button id="saveSettingsBtn" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Всплывающие уведомления Toast -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
